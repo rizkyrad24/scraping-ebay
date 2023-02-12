@@ -20,6 +20,7 @@ querybox.execute("create table if not exists scraping_ebay(id int AUTO_INCREMENT
     "Note_From_Seller varchar(5000),"
     "Detail varchar(5000))")
 conn.commit()
+
 s = requests.session()
 for page in range(1,11):
     url = "https://www.ebay.com/b/Cell-Phones-Smartphones/9355/bn_320094?_pgn={}".format(page)
@@ -29,19 +30,27 @@ for page in range(1,11):
     res = s.get(url, headers=headers, proxies={"http": "http://61.233.25.166:80"})
     soup = BeautifulSoup(res.text, "html.parser")
     generals = soup.findAll('li', 's-item s-item--large')
+    
     for general in generals:
         link = general.find('div', 's-item__info clearfix').find('a')['href']
+        
         try : title = general.find('h3', 's-item__title s-item__title--has-tags').text
         except : title = general.find('h3', 's-item__title').text
+        
         try : rating = general.find('div', 'star-rating b-rating__rating-star')['data-stars']
         except : rating = "no rating"
+        
         price = general.find('span', 's-item__price').text
+        
         shipping = general.find('span', 's-item__shipping s-item__logisticsCost').text
+       
         try : info = general.find('span', 'NEGATIVE').text
         except : info = ""
 
+        
         res2 = s.get(link, headers=headers, proxies={"http": "http://61.233.25.166:80"})
         detail = BeautifulSoup(res2.text, "html.parser")
+        
         try : image1 = detail.find('div', 'ux-image-carousel-item active image').find('img')['src']
         except : image1 = "no image"
         try : image2 = detail.find('img', 'vi-image-gallery__image vi-image-gallery__image--absolute-center')['src']
@@ -56,8 +65,10 @@ for page in range(1,11):
             image = image3
         else:
             image = "no image"
+        
         try: condition = detail.find('div', 'ux-layout-section ux-layout-section--condition ux-layout-section--SECTION_WITH_BACKGROUND').text
         except: condition = "none"
+        
         try: about1 = detail.find('div','ux-layout-section__item ux-layout-section__item--table-view').text
         except: about1 = 'none'
         try: about2 = detail.find('section', 'product-spectification').text
